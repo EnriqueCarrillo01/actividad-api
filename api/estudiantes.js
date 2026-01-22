@@ -1,16 +1,12 @@
 const pool = require("../db");
 
-module.exports = async (req, res) => {
-  // Solo GET
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Método no permitido" });
-  }
-
+module.exports = async function handler(req, res) {
   try {
-    // OJO: "EstudiantesHP" es tu tabla (con mayúsculas), por eso lleva comillas
-    // "Nombre" y "Casa" también llevan comillas
-    // materia_destacada ya NO lleva comillas si ya renombraste la columna
-    const { rows } = await pool.query(`
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Método no permitido" });
+    }
+
+    const sql = `
       SELECT 
         id,
         "Nombre" AS nombre,
@@ -18,14 +14,17 @@ module.exports = async (req, res) => {
         materia_destacada
       FROM "EstudiantesHP"
       ORDER BY id;
-    `);
+    `;
 
+    const { rows } = await pool.query(sql);
     return res.status(200).json(rows);
   } catch (error) {
-    console.error("DB error:", error);
+    // Para que NO salga la pantalla bonita de Vercel y sí te devuelva el error real
     return res.status(500).json({
       error: "DB error",
-      detail: error.message
+      message: error.message,
+      hint:
+        "Revisa que la columna exista (materia_destacada) y que DATABASE_URL esté bien (sin saltos y con contraseña).",
     });
   }
 };
