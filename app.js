@@ -9,7 +9,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.json({
     ok: true,
-    message: "API funcionando ✅",
+    message: "Escupelupe working yipiyipiyou!",
     endpoints: ["/api/estudiantes"],
   });
 });
