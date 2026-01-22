@@ -1,27 +1,29 @@
 const pool = require("../db");
 
 module.exports = async (req, res) => {
-  // Solo permitimos GET
+  // Solo GET
   if (req.method !== "GET") {
-    return res.status(405).json({
-      error: "Método no permitido"
-    });
+    return res.status(405).json({ error: "Método no permitido" });
   }
 
   try {
-    const result = await pool.query(`
+    // OJO: "EstudiantesHP" es tu tabla (con mayúsculas), por eso lleva comillas
+    // "Nombre" y "Casa" también llevan comillas
+    // materia_destacada ya NO lleva comillas si ya renombraste la columna
+    const { rows } = await pool.query(`
       SELECT 
         id,
-        nombre,
-        casa,
+        "Nombre" AS nombre,
+        "Casa" AS casa,
         materia_destacada
-      FROM estudiantes
-      ORDER BY id
+      FROM "EstudiantesHP"
+      ORDER BY id;
     `);
 
-    res.status(200).json(result.rows);
+    return res.status(200).json(rows);
   } catch (error) {
-    res.status(500).json({
+    console.error("DB error:", error);
+    return res.status(500).json({
       error: "DB error",
       detail: error.message
     });
