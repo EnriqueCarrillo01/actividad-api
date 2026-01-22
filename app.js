@@ -1,29 +1,20 @@
 import express from "express";
-import { pool } from "./db.js";
+import estudiantesRouter from "./routes/estudiantes.js";
 
 const app = express();
+
 app.use(express.json());
 
-// GET: devuelve todos los estudiantes (JSON)
-app.get("/api/estudiantes", async (req, res) => {
-  try {
-    const r = await pool.query('select * from public."EstudiantesHP" order by id asc;');
-    res.json(r.rows);
-  } catch (err) {
-    res.status(500).json({ error: "DB error", detail: String(err.message ?? err) });
-  }
+// Ruta base para probar rápido
+app.get("/", (req, res) => {
+  res.json({
+    ok: true,
+    message: "API funcionando ✅",
+    endpoints: ["/api/estudiantes"],
+  });
 });
 
-// GET: uno por id
-app.get("/api/estudiantes/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const r = await pool.query('select * from public."EstudiantesHP" where id = $1;', [id]);
-    if (r.rows.length === 0) return res.status(404).json({ error: "No encontrado" });
-    res.json(r.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: "DB error", detail: String(err.message ?? err) });
-  }
-});
+// Rutas
+app.use("/api/estudiantes", estudiantesRouter);
 
 export default app;

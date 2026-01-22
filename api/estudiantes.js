@@ -1,30 +1,54 @@
-const pool = require("../db");
+import { Router } from "express";
+import { pool } from "../db.js";
 
-module.exports = async function handler(req, res) {
+const router = Router();
+
+// GET /api/estudiantes
+router.get("/", async (req, res) => {
   try {
-    if (req.method !== "GET") {
-      return res.status(405).json({ error: "Método no permitido" });
+    const result = await pool.query(`
+      SELECT
+        id,
+        created_at,
+        "Nombre",
+        "Casa",
+        "Materia destacada"
+      FROM public."EstudiantesHP"
+      ORDER BY id ASC
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "DB error", detail: error.message });
+  }
+});
+
+// POST /api/estudiantes
+router.post("/", async (req, res) => {
+  try {
+    const { nombre, casa, materiaDestacada } = req.body;
+
+    if (!nombre || !casa) {
+      return res
+        .status(400)
+        .json({ error: "Faltan datos", detail: "nombre y casa son obligatorios" });
     }
 
-    const sql = `
-      SELECT 
-        id,
-        "Nombre" AS nombre,
-        "Casa" AS casa,
-        materia_destacada
-      FROM "EstudiantesHP"
-      ORDER BY id;
-    `;
+    const result = await pool.query(
+      `
+      INSERT INTO public."EstudiantesHP" ("Nombre", "Casa", "Materia destacada")
+      VALUES ($1, $2, $3)
+      RETURNING id, created_at, "Nombre", "Casa", "Materia destacada"
+      `,
+      [nombre, casa, materiaDestacada ?? null]
+    );
 
-    const { rows } = await pool.query(sql);
-    return res.status(200).json(rows);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
-    // Para que NO salga la pantalla bonita de Vercel y sí te devuelva el error real
-    return res.status(500).json({
-      error: "DB error",
-      message: error.message,
-      hint:
-        "Revisa que la columna exista (materia_destacada) y que DATABASE_URL esté bien (sin saltos y con contraseña).",
-    });
+    console.error(error);
+    res.status(500).json({ error: "DB error", detail: error.message });
   }
-};
+});
+
+export default router;
