@@ -49,5 +49,24 @@ app.get("/estudiantes", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+app.get("/tabla/:nombre", async (req, res) => {
+  try {
+    const supabase = getSupabase();
+    const { nombre } = req.params;
+
+    const { data, error } = await supabase
+      .from(nombre)
+      .select("*");
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default app;
