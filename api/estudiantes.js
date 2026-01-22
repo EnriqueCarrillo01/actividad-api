@@ -17,11 +17,8 @@ export default async function handler(req, res) {
       'select * from public."EstudiantesHP" order by id asc;'
     );
 
-    res.status(200).json(result.rows);
+    return res.status(200).json(result.rows);
   } catch (error) {
-    res.status(500).json({
-      error: "Database error",
-      detail: error.message,
-    });
+    return res.status(500).json({ error: "DB error", detail: error.message });
   }
 }
