@@ -37,9 +37,9 @@ router.post("/", async (req, res) => {
 
     const result = await pool.query(
       `
-      INSERT INTO public."EstudiantesHP" ("Nombre", "Casa", "Materia destacada")
+      INSERT INTO public."EstudiantesHP" ("Nombre", "Casa", "Materia_destacada")
       VALUES ($1, $2, $3)
-      RETURNING id, created_at, "Nombre", "Casa", "Materia destacada"
+      RETURNING id, created_at, "Nombre", "Casa", "Materia_destacada"
       `,
       [nombre, casa, materiaDestacada ?? null]
     );
