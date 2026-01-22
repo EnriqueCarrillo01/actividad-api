@@ -1,5 +1,5 @@
 import express from "express";
-import estudiantesRouter from "./routes/estudiantes.js";
+import estudiantesRouter from "./api/estudiantes.js";
 
 const app = express();
 
